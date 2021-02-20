@@ -1,0 +1,46 @@
+/*Test 1.toy */
+
+proc stampa(int a; float b)int, float, string:
+    string nome;
+    int x;
+    float y;
+    int result_int;
+    float result_float;
+    string result_s;
+    write("Inserisci il nome\n";);
+    readln(nome);
+    write("Ciao ", nome;);
+    write("Inserisci un intero\n";);
+    readln(x);
+    write("Inserisci un float\n";);
+    readln(y);
+
+     result_int := a + x;
+     result_float := b + y;
+     result_s := nome;
+
+    -> result_int, result_float, result_s;
+corp;
+
+
+
+proc main()void:
+
+    int x;
+    float y;
+    string z;
+    string z2;
+
+    write("\n";);
+    write("I risultati sono:\n";);
+
+    x, y, z := stampa(5, 7.3;);
+
+
+
+    write("intero: ", x;);
+    write("float: ", y;);
+    write("float: ", z;);
+
+    -> null;
+corp;

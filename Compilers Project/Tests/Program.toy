@@ -1,0 +1,77 @@
+
+proc main()void:
+    int operation, continua := 1;
+    float a, b, result := 3.2;
+
+    /*int i := 1;
+    while i > 1 do
+        a := 3.1;
+        i := i+1;
+    od;*/
+
+    for(int x := 0; x < 1; x := x+1;)
+        int yy := 1;
+        x := 3.1;
+    ;
+
+    write("Benvenuto\n";);
+
+
+
+
+    while continua = 1 do
+
+        write("Scegli l'operazione aritmetica da effettuare: 1: +, 2: -, 3 : *, 4 : / ";);
+        readln(operation);
+        write("Inserisci i due operandi da calcolare ";);
+        readln(a);
+        readln(b);
+
+        if operation = 1 then
+            result := add(a, b;);
+
+        elif operation = 2 then
+            result := sub(a, b;);
+
+        elif operation = 3 then
+            result := mul(a, b;);
+
+        elif operation = 4 then
+            result := div(a, b;);
+
+        fi;
+
+        write("Il risultato è : ";);
+        write(result;);
+        write("Vuoi continuare? 1 : si, 0 : no ";);
+        readln(continua);
+    od;
+    -> null;
+corp;
+
+
+proc add(float a, b)float:
+    ->  a + b;
+corp;
+
+
+proc sub(float a, b)float:
+    -> a - b;
+corp;
+
+
+proc mul(float a, x)float:
+    -> a * b;
+corp;
+
+proc div(float a, b)float:
+    -> a / b;
+corp;
+
+proc div(float a, b)float:
+    -> a / b;
+corp;
+
+proc visit()void:
+    -> null;
+corp;

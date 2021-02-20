@@ -1,0 +1,114 @@
+float a, b, result;
+int a_int, b_int, result_int;
+
+
+proc main() void:
+
+    int operation, continua := 1;
+    write("Benvenuto\n";);
+    while continua = 1 do
+        write("Scegli l'operazione da effettuare:\n1: somma di due numeri;\n2: moltiplicazione di due numeri;\n3 : Divisione intera tra numeri positivi; \n4 : Elevamento a potenza;\n5 : Successione di Fibonacci\n ";);
+        readln(operation);
+
+        if operation = 1 then
+            write("Inserisci il primo operando: \n";);
+            readln(a);
+            write("Inserisci il secondo operando: \n";);
+            readln(b);
+            result := add(a, b;);
+
+        elif operation = 2 then
+            write("Inserisci il primo operando: \n";);
+            readln(a_int);
+            write("Inserisci il secondo operando: \n";);
+            readln(b_int);
+            result_int := mult(a_int, b_int;);
+
+        elif operation = 3 then
+            write("Inserisci il primo operando: \n";);
+            readln(a_int);
+            write("Inserisci il secondo operando: \n";);
+            readln(b_int);
+            result_int := divOp(a_int, b_int;);
+
+        elif operation = 4 then
+            write("Inserisci la base: \n";);
+            readln(a_int);
+            write("Inserisci l'esponente: \n";);
+            readln(b_int);
+            result_int := expOp(a_int, b_int;);
+
+        elif operation = 5 then
+            write("Inserisci l'intero: \n";);
+            readln(a_int);
+            fibo(a_int;);
+        fi;
+
+        write("\nVuoi continuare? 1 : si, 0 : no ";);
+        readln(continua);
+    od;
+
+    -> null;
+corp;
+
+proc add(float a, b) float:
+    float x;
+    x := a + b;
+    write("Il risultato è ",x;);
+    -> x;
+corp;
+
+proc mult(int op1, op2) int:
+    int i := 1;
+    int temp := op1;
+
+    while i < op2 do
+        temp := temp + op1;
+        i := i+1;
+    od;
+    write("Il risultato è ",temp;);
+    -> temp;
+corp;
+
+proc divOp(int op1, op2) int:
+    int temp;
+    if op1 > 0 then
+        if op2 > 0 then
+        temp := op1 / op2;
+        fi;
+    fi;
+    write("Il risultato è ", temp;);
+    -> temp;
+corp;
+
+
+proc expOp(int op1, op2) int:
+    int i := 1;
+    int temp := op1;
+
+    while i < op2 do
+        temp := temp * op1;
+        i := i+1;
+    od;
+
+    write("Il risultato è ", temp;);
+    -> temp;
+corp;
+
+proc fibo(int op1) void:
+    int i := 0;
+    int x := 0;
+    int y := 1;
+    int z := 0;
+
+
+    while i < op1 do
+        write(x;);
+        write(" ";);
+        z := x + y;
+        x := y;
+        y := z;
+        i := i + 1;
+    od;
+    -> null;
+corp;

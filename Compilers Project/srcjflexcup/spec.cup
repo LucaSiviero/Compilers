@@ -1,0 +1,237 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+import java_cup.runtime.*;
+
+/* Terminals (tokens returned by the scanner). */
+terminal PROC,CORP,LPAR,RPAR,ID,COLON,SEMI,COMMA,INT,BOOL,FLOAT,STRING,ASSIGN,WHILE,DO,OD,IF,FI,THEN,ELIF,ELSE,READ,WRITE,TRUE,FALSE,VOID;
+terminal STRING_CONST,PLUS,MINUS,TIMES,DIV,AND,OR,GT,GE,LT,LE,EQ,NE,NOT,NULL,RETURN, UMINUS;
+terminal FOR;
+terminal INT_CONST;
+terminal FLOAT_CONST;
+
+/* Non terminals */
+non terminal ProgramOp Program;
+non terminal ForOp For;
+non terminal LinkedList<ProcOp> ProcList;
+non terminal ProcOp Proc;
+non terminal LinkedList<ParDeclOp> ParamDeclList;
+non terminal ParDeclOp ParDecl;
+non terminal ReturnExprsOp ReturnExprs;
+non terminal LinkedList<ResultTypeOp> ResultTypeList;
+non terminal ResultTypeOp ResultType;
+non terminal StatNode Stat;
+non terminal LinkedList<VarDeclOp> VarDeclList;
+non terminal VarDeclOp VarDecl;
+non terminal IdListInitOp IdListInit;
+non terminal WhileOp WhileStat;
+non terminal ReadOp ReadlnStat;
+non terminal WriteOp WriteStat;
+non terminal ElseNode Else;
+non terminal ElifOp Elif;
+non terminal LinkedList<ElifOp> ElifList;
+non terminal LinkedList<StatNode> StatList;
+non terminal IfStatOp IfStat;
+non terminal AssignOp AssignStat;
+non terminal LinkedList<IdNode> IdList;
+non terminal GenericType Type;
+non terminal LinkedList<ExprNode>  ExprList;
+non terminal CallProcOp CallProc;
+non terminal ExprNode    Expr;
+
+/* Precedences */
+precedence right COMMA;
+precedence nonassoc GT,GE,LT,LE,EQ,NE;
+precedence left PLUS, MINUS, OR;
+precedence left TIMES, DIV, AND;
+precedence right NOT, UMINUS;
+
+
+/* The grammar rules */
+Program ::= VarDeclList:vars ProcList:procs {: RESULT = new ProgramOp(vars, procs); :}
+           | ProcList:procs     {: RESULT = new ProgramOp(null, procs); :}
+        ;
+
+
+
+VarDeclList ::= VarDecl:var VarDeclList:vars    {: RESULT = vars; vars.addFirst(var); :}
+              | VarDecl:var     {: LinkedList<VarDeclOp>  l = new LinkedList<VarDeclOp>(); l.addFirst(var); RESULT = l; :}
+              ;
+
+
+ProcList ::= Proc:p {: LinkedList<ProcOp> l = new LinkedList<ProcOp>(); l.addFirst(p); RESULT = l; :}
+        | Proc:p ProcList:procs {: RESULT = procs; procs.addFirst(p); :}
+        ;
+
+
+VarDecl ::= Type:t IdListInit:ids SEMI  {: RESULT = new VarDeclOp(t, ids); :}
+            ;
+
+
+Type::= INT     {: RESULT = new IntegerType(); :}
+      | FLOAT   {: RESULT = new FloatType(); :}
+      | STRING  {: RESULT = new StringType(); :}
+      | BOOL    {: RESULT = new BoolType(); :}
+      ;
+
+
+IdListInit ::= ID:i     {:  RESULT = new IdListInit(); RESULT.addInitOp(new AssignOp(new IdNode(i))); :}
+          | IdListInit:ids COMMA ID:i {: ids.addInitOp(new AssignOp(new IdNode(i))); RESULT = ids;
+                                       :}
+          |ID:i ASSIGN Expr:e     {: RESULT = new IdListInit(); RESULT.addInitOp(new AssignOp(new IdNode(i), e));
+                                  :}
+          |IdListInit:ids COMMA ID:i ASSIGN Expr:e    {: ids.addInitOp(new AssignOp(new IdNode(i), e)); RESULT = ids; :}
+          ;
+
+
+Proc ::= PROC ID:i LPAR ParamDeclList:pars RPAR ResultTypeList:results COLON VarDeclList:vars StatList:stats RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), pars, results, new ProcBodyOp(vars, stats, r_expr)); :}
+        |PROC ID:i LPAR ParamDeclList:pars RPAR ResultTypeList:results COLON VarDeclList:vars RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), pars, results, new ProcBodyOp(vars, null, r_expr)); :}
+        |PROC ID:i LPAR RPAR ResultTypeList:results COLON VarDeclList:vars StatList:stats RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), null, results, new ProcBodyOp(vars, stats, r_expr)); :}
+        |PROC ID:i LPAR RPAR ResultTypeList:results COLON VarDeclList:vars RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), null, results, new ProcBodyOp(vars, null, r_expr)); :}
+
+        |PROC ID:i LPAR ParamDeclList:pars RPAR ResultTypeList:results COLON StatList:stats RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), pars, results, new ProcBodyOp(null, stats, r_expr)); :}
+        |PROC ID:i LPAR ParamDeclList:pars RPAR ResultTypeList:results COLON RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), pars, results, new ProcBodyOp(null, null, r_expr)); :}
+        |PROC ID:i LPAR RPAR ResultTypeList:results COLON StatList:stats RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), null, results, new ProcBodyOp(null, stats, r_expr)); :}
+        |PROC ID:i LPAR RPAR ResultTypeList:results COLON RETURN ExprList:r_expr CORP SEMI
+        {: RESULT = new ProcOp(new IdNode(i), null, results, new ProcBodyOp(null, null, r_expr)); :}
+        ;
+
+
+ResultTypeList ::= ResultType:r     {: LinkedList<ResultTypeOp> l = new LinkedList<ResultTypeOp>(); l.addFirst(r); RESULT = l; :}
+                | ResultType:r COMMA ResultTypeList:returns     {: RESULT = returns; returns.addFirst(r); :}
+                ;
+
+ReturnExprs ::= ExprList:exprs  {: new ReturnExprsOp(exprs); :}
+                |
+                ;
+
+ExprList ::= Expr:e COMMA ExprList:es           {: RESULT = es; es.addFirst(e);  :}
+            |Expr:e SEMI                        {: LinkedList<ExprNode> l = new LinkedList<ExprNode>(); l.addFirst(e); RESULT = l;:}
+            ;
+
+
+ParamDeclList ::= ParDecl:par       {: LinkedList<ParDeclOp> l = new LinkedList<ParDeclOp>(); l.addFirst(par); RESULT = l; :}
+                | ParamDeclList:pars SEMI ParDecl:par       {: RESULT = pars; pars.addFirst(par); :}
+                ;
+
+
+ParDecl ::= Type:t IdList:ids   {: RESULT = new ParDeclOp(t, ids); :}
+        ;
+
+IdList ::= ID:i     {: LinkedList<IdNode> l = new LinkedList<IdNode>(); l.addFirst(new IdNode(i)); RESULT = l;:}
+           |IdList:is COMMA ID:i    {:RESULT = is; is.addFirst(new IdNode(i)); :}
+           ;
+
+ResultType ::= Type:t       {: RESULT = new ResultTypeOp(t); :}
+            |VOID           {: RESULT = new ResultTypeOp("void"); :}
+            ;
+
+StatList ::= Stat:stat      {:LinkedList<StatNode> l = new LinkedList<StatNode>(); l.addFirst(stat); RESULT = l; :}
+             |Stat:stat StatList:stats  {: RESULT = stats; stats.addFirst(stat); :}
+            ;
+
+Stat ::=  AssignStat:a                  {: RESULT = a; :}
+        | IfStat:if_stat SEMI           {: RESULT = if_stat; :}
+        | WhileStat:while_stat SEMI     {: RESULT = while_stat; :}
+        | ReadlnStat:read_stat SEMI     {: RESULT = read_stat; :}
+        | WriteStat:write_stat SEMI     {: RESULT = write_stat; :}
+        | CallProc:cpo SEMI             {: RESULT = cpo; :}
+        | For:f SEMI                    {: RESULT = f; :}
+        ;
+
+
+IfStat ::= IF Expr:e THEN StatList:stats ElifList:elifs Else:el FI  {: RESULT = new IfStatOp(e, new BodyOp(stats), elifs, el); :}
+         | IF Expr:e THEN StatList:stats Else:el FI                 {: RESULT = new IfStatOp(e, new BodyOp(stats), el); :}
+        ;
+
+
+ElifList ::= Elif:elif ElifList:elifs   {: RESULT = elifs; elifs.addFirst(elif);  :}
+            |Elif:elif                  {: LinkedList<ElifOp> l = new LinkedList<ElifOp>(); l.addFirst(elif); RESULT = l; :}
+            ;
+
+
+Elif ::= ELIF Expr:e THEN StatList:stats    {: RESULT = new ElifOp(e, new BodyOp(stats)); :}
+        ;
+
+Else ::= ELSE StatList:stats                {: RESULT = new ElseNode(new BodyOp(stats)); :}
+     |
+     ;
+
+
+WhileStat ::= WHILE StatList:stats RETURN Expr:e DO StatList:stats2 OD  {: RESULT = new WhileOp(new BodyOp(stats), e, new BodyOp(stats2)); :}
+            | WHILE Expr:e DO StatList:stats OD                         {: RESULT = new WhileOp(e, new BodyOp(stats)); :}
+
+   ;
+
+
+For ::= FOR LPAR VarDecl:v Expr:e SEMI AssignStat:a RPAR VarDecl:var StatList:s {:
+        LinkedList<VarDeclOp> vars = new LinkedList<VarDeclOp>();   vars.add(var);
+        ProcBodyOp b = new ProcBodyOp(vars, s, null);
+        RESULT = new ForOp(v, e, a, b); :}
+    ;
+
+ReadlnStat ::= READ LPAR IdList:is RPAR  {: RESULT = new ReadOp(is); :}
+        ;
+
+
+WriteStat ::= WRITE LPAR ExprList:es RPAR   {: RESULT = new WriteOp(es); :}
+        ;
+
+
+AssignStat ::= IdList:is ASSIGN ExprList:es     {: RESULT = new AssignOp(is, es); :}
+            ;
+
+
+CallProc ::= ID:i LPAR ExprList:es RPAR  {: RESULT = new CallProcOp(new IdNode(i),es); :}
+           | ID:i LPAR RPAR              {: RESULT = new CallProcOp(new IdNode(i));    :}
+           ;
+
+Expr ::= NULL
+	{: RESULT = new NullConst(); :}
+    | TRUE
+	{: RESULT = new BooleanConst("TRUE"); :}
+    | FALSE
+	{: RESULT = new BooleanConst("FALSE"); :}
+    | INT_CONST:n
+	{: RESULT = new IntegerConst(n); :}
+    | FLOAT_CONST:n
+	{: RESULT = new FloatConst(n); :}
+    | STRING_CONST:n
+	{: RESULT = new StringConst(n); :}
+    | Expr:e1 PLUS Expr:e2
+	{: RESULT = new AddOp(e1,e2);  :}
+    | Expr:e1 MINUS Expr:e2
+	{: RESULT = new SubOp(e1, e2); :}
+    | Expr:e1 TIMES Expr:e2
+	{: RESULT = new MultOp(e1, e2); :}
+    | Expr:e1 DIV Expr:e2
+	{: RESULT = new DivOp(e1, e2); :}
+    | Expr:e1 AND Expr:e2
+	{: RESULT = new AndOp(e1, e2); :}
+    | Expr:e1 OR Expr:e2
+	{: RESULT = new OrOp(e1, e2); :}
+    | Expr:e1 GT Expr:e2
+	{: RESULT = new GtOp(e1, e2); :}
+    | Expr:e1 GE Expr:e2
+	{: RESULT = new GeOp(e1, e2); :}
+    | Expr:e1 LT Expr:e2
+	{: RESULT = new LtOp(e1, e2); :}
+    | Expr:e1 LE Expr:e2
+	{: RESULT = new LeOp(e1, e2); :}
+    | Expr:e1 EQ Expr:e2
+	{: RESULT = new EqOp(e1, e2); :}
+    | Expr:e1 NE Expr:e2
+	{: RESULT = new NeOp(e1, e2); :}
+    | MINUS Expr:e
+	{: RESULT = new MinusOp(e); :}  %prec UMINUS
+    | NOT Expr:e
+	{: RESULT = new NotOp(e); :}
+    | ID:i
+    {: RESULT = new IdNode(i); :}
+    |CallProc:proc  {: RESULT = new ExprCallProc(proc.getId(), proc.getExprs()); :}
+    ;

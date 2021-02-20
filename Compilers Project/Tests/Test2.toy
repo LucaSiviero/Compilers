@@ -1,0 +1,28 @@
+proc retBool(bool x) void:
+    write(x;);
+    ->null;
+corp;
+
+proc andOperation(bool a, b) bool:
+    -> a && b;
+corp;
+
+proc orOperation(bool a, b) bool:
+    -> a || b;
+corp;
+
+proc notOp(bool a) bool:
+    -> !a;
+corp;
+
+proc main() void:
+    bool result := true;
+    bool result2 := false;
+    bool boolean := false;
+    bool boolean2 := true;
+    retBool(boolean;);
+    result := andOperation(boolean, boolean2;);
+    result2 := notOp(boolean;);
+    write(result2;);
+    ->null;
+corp;
