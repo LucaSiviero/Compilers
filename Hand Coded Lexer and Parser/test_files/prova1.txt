@@ -1,0 +1,5 @@
+/*Il Parser non ha problemi con i commenti. Il punto e virgola è un separatore di istruzioni ma non un terminatore di istruzioni*/
+if var < 0.1 then x <-- 4 else c <-- 4;
+while x > 1 do x <-- 3;
+a <-- b;
+if x >= y then y <-- 3 else y <-- 4
