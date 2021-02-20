@@ -3,4 +3,4 @@ This repository contains my work for the Compilers class at University of Salern
 The src folder contains all the classes needed to compile and execute the project. The java-cup-runtime is a jar needed to use CUP and JFLEX.
 To implement syntax checking, semantics checking and intermediate code generation I have used the Visitor Design Pattern.
 The C code is generated when executing the project on a Toy file without semantics or syntax errors.
-The other folder, "hand coded parser and lexer", contains lexer and parser implementation written without the help of JFLEX and CUP. This implementation works on a very small language.
+The other folder, "Hand Coded Lexer And Parser", contains lexer and parser implementation written without the help of JFLEX and CUP. This implementation works on a very small language.
